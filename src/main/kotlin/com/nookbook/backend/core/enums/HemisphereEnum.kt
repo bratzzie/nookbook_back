@@ -1,4 +1,4 @@
-package com.nookbook.backend.models.enums
+package com.nookbook.backend.core.enums
 
 enum class HemisphereEnum {
     Northern, Southern, UNDEFINED

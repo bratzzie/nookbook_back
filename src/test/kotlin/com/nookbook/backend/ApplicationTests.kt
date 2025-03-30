@@ -1,9 +1,11 @@
 package com.nookbook.backend
 
-import com.nookbook.backend.models.RoleEntity
-import com.nookbook.backend.models.UserEntity
-import com.nookbook.backend.repositories.RoleRepository
-import com.nookbook.backend.services.UserService
+import com.nookbook.backend.core.services.UserService
+import com.nookbook.backend.persistence.models.RoleEntity
+import com.nookbook.backend.persistence.models.UserEntity
+import com.nookbook.backend.persistence.repositories.RoleRepository
+import com.nookbook.backend.web.models.RegistrationDTO
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -20,12 +22,22 @@ class ApplicationTests {
     @Test
     fun shouldUserServiceCreateNewUser_WhenGivenIdentityAndBasicUserInfo() {
         roleRepository.save(RoleEntity("USER"))
-        val user = UserEntity(
-            "myemail.com", "myusername", "mypassword", "myname",
-            "myislandname", HashSet()
+        val user = RegistrationDTO(
+            "myemail.com", "myname", "myusername"
         )
 
-        userService.createUser(user)
+        assertThat(
+            userService.createUser(user)
+        ).usingRecursiveComparison().ignoringFields("authorities").isEqualTo(
+            UserEntity(
+                "myemail.com",
+                "myusername",
+                "",
+                "myname",
+                "",
+                id = 1
+            )
+        )
     }
 
 }

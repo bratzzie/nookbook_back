@@ -1,4 +1,4 @@
-package com.nookbook.backend.models
+package com.nookbook.backend.persistence.models
 
 import jakarta.persistence.*
 
@@ -12,6 +12,10 @@ class RoleEntity(
     @Column(name = "role_id")
     val id: Int? = null
 ) {
+    constructor() : this("") {
+
+    }
+
     override fun toString(): String {
         return "RoleEntity(id=$id, authority='$authority')"
     }
