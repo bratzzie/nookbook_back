@@ -2,7 +2,9 @@ package com.nookbook.backend.web.controllers
 
 import com.nookbook.backend.core.services.exceptions.EmailAlreadyTakenException
 import com.nookbook.backend.core.services.exceptions.EmailFailedToSendException
+import com.nookbook.backend.core.services.exceptions.IncorrectVerificationCodeException
 import com.nookbook.backend.core.services.exceptions.UsernameAlreadyTakenException
+import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -29,5 +31,18 @@ class AuthenticationControllerExceptionHandler {
             "Verification code was failed to be sent, try again later.",
             HttpStatus.INTERNAL_SERVER_ERROR
         )
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler
+    fun handleRequestBodyIsNotValidException(ex: RequestBodyIsNotValidException): ResponseEntity<String> =
+        ResponseEntity<String>(
+            ex.message,
+            HttpStatus.BAD_REQUEST
+        )
+
+    @ResponseStatus(HttpStatus.CONFLICT)
+    @ExceptionHandler
+    fun handleIncorrectVerificationCodeException(ex: IncorrectVerificationCodeException): ResponseEntity<String> =
+        ResponseEntity<String>("The provided verification code is incorrect", HttpStatus.CONFLICT)
 }
 

@@ -15,6 +15,7 @@ class UserEntity(
     var username: String,
 
     @Column(nullable = false)
+    @JsonIgnore
     var password: String,
 
     @Column
