@@ -1,6 +1,5 @@
 package com.nookbook.backend.core.services
 
-import com.nookbook.backend.core.converters.RegistrationDTOToUserEntityConverter
 import com.nookbook.backend.core.services.exceptions.EmailAlreadyTakenException
 import com.nookbook.backend.core.services.exceptions.IncorrectVerificationCodeException
 import com.nookbook.backend.core.services.exceptions.UserDoesNotExistException
@@ -9,7 +8,6 @@ import com.nookbook.backend.persistence.models.RoleEntity
 import com.nookbook.backend.persistence.models.UserEntity
 import com.nookbook.backend.persistence.repositories.RoleRepository
 import com.nookbook.backend.persistence.repositories.UserRepository
-import com.nookbook.backend.web.models.RegistrationDTO
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import kotlin.math.floor
@@ -18,18 +16,16 @@ import kotlin.math.floor
 class UserService(
     private val userRepository: UserRepository,
     private val roleRepository: RoleRepository,
-    private val converter: RegistrationDTOToUserEntityConverter,
     private val gmailService: GmailService,
     private val passwordEncoder: PasswordEncoder
 ) {
 
-    fun createUser(userDTO: RegistrationDTO): UserEntity {
-        if (userRepository.findByEmail(userDTO.email).isPresent)
+    fun createUser(user: UserEntity): UserEntity {
+        if (userRepository.findByEmail(user.email).isPresent)
             throw EmailAlreadyTakenException()
-        if (userRepository.findByUsername(userDTO.username).isPresent)
+        if (userRepository.findByUsername(user.username).isPresent)
             throw UsernameAlreadyTakenException()
 
-        val user = converter.toUserEntity(userDTO)
         val roles: MutableSet<RoleEntity> = user.authorities
         //TODO: remove from here
         if (roleRepository.findRoleByAuthority("USER").isEmpty)
@@ -48,7 +44,7 @@ class UserService(
 
         gmailService.sendEmail(
             user.email,
-            "Verificaton code for Nookbook!",
+            "Verification code for Nookbook!",
             "Check your verification code: ${user.verificationCode}"
         )
         userRepository.save(user)

@@ -12,9 +12,6 @@ class RoleEntity(
     @Column(name = "role_id")
     val id: Int? = null
 ) {
-    constructor() : this("") {
-
-    }
 
     override fun toString(): String {
         return "RoleEntity(id=$id, authority='$authority')"

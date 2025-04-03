@@ -15,7 +15,6 @@ class UserEntity(
     var username: String,
 
     @Column(nullable = false)
-    @JsonIgnore
     var password: String,
 
     @Column
@@ -33,27 +32,28 @@ class UserEntity(
     var authorities: MutableSet<RoleEntity> = HashSet(),
 
     @Column(name = "native_fruit") @Enumerated(EnumType.STRING)
-    var nativeFruit: FruitEnum? = FruitEnum.UNDEFINED,
+    var nativeFruit: FruitEnum,
 
     @Column(name = "island_id")
-    var islandId: String? = "",
+    var islandId: String,
 
     @Column @Enumerated(EnumType.STRING)
-    var hemisphere: HemisphereEnum? = HemisphereEnum.UNDEFINED,
+    var hemisphere: HemisphereEnum,
 
-    var accountEnabled: Boolean? = false,
+    var accountEnabled: Boolean,
 
     @Column(name = "verification_code")
     @JsonIgnore
-    var verificationCode: Long? = 0,
+    var verificationCode: Long?,
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    val id: Long? = null
+    var id: Long
 ) {
-    constructor() : this("", "", "", "", "") {
 
+    override fun toString(): String {
+        return "UserEntity(email='$email', username='$username', password='$password', name='$name', islandName='$islandName', authorities=$authorities, nativeFruit=$nativeFruit, islandId=$islandId, hemisphere=$hemisphere, accountEnabled=$accountEnabled, verificationCode=$verificationCode, id=$id)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -79,23 +79,19 @@ class UserEntity(
     }
 
     override fun hashCode(): Int {
-        var result = accountEnabled?.hashCode() ?: 0
-        result = 31 * result + (verificationCode?.hashCode() ?: 0)
-        result = 31 * result + (id?.hashCode() ?: 0)
+        var result = accountEnabled.hashCode()
+        result = 31 * result + verificationCode.hashCode()
+        result = 31 * result + id.hashCode()
         result = 31 * result + email.hashCode()
         result = 31 * result + username.hashCode()
         result = 31 * result + password.hashCode()
         result = 31 * result + name.hashCode()
         result = 31 * result + islandName.hashCode()
         result = 31 * result + authorities.hashCode()
-        result = 31 * result + (nativeFruit?.hashCode() ?: 0)
-        result = 31 * result + (islandId?.hashCode() ?: 0)
-        result = 31 * result + (hemisphere?.hashCode() ?: 0)
+        result = 31 * result + nativeFruit.hashCode()
+        result = 31 * result + islandId.hashCode()
+        result = 31 * result + hemisphere.hashCode()
         return result
-    }
-
-    override fun toString(): String {
-        return "UserEntity(email='$email', username='$username', password='$password', name='$name', islandName='$islandName', authorities=$authorities, nativeFruit=$nativeFruit, islandId=$islandId, hemisphere=$hemisphere, accountEnabled=$accountEnabled, verificationCode=$verificationCode, id=$id)"
     }
 
 
