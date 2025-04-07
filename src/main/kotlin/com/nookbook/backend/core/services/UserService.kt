@@ -8,6 +8,11 @@ import com.nookbook.backend.persistence.models.RoleEntity
 import com.nookbook.backend.persistence.models.UserEntity
 import com.nookbook.backend.persistence.repositories.RoleRepository
 import com.nookbook.backend.persistence.repositories.UserRepository
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import kotlin.math.floor
@@ -18,7 +23,7 @@ class UserService(
     private val roleRepository: RoleRepository,
     private val gmailService: GmailService,
     private val passwordEncoder: PasswordEncoder
-) {
+) : UserDetailsService {
 
     fun createUser(user: UserEntity): UserEntity {
         if (userRepository.findByEmail(user.email).isPresent)
@@ -73,13 +78,24 @@ class UserService(
         return userRepository.save(user)
     }
 
-    private fun getUserByUsername(username: String): UserEntity {
+    fun getUserByUsername(username: String): UserEntity {
         val optionalUser = userRepository.findByUsername(username)
 
         if (optionalUser.isPresent)
             return optionalUser.get()
         else
             throw UserDoesNotExistException()
+    }
+
+    override fun loadUserByUsername(username: String?): UserDetails {
+        val user: UserEntity? = username?.let { getUserByUsername(it) }
+
+        val authorities: Set<GrantedAuthority> =
+            user!!.authorities.map { roleEntity: RoleEntity -> SimpleGrantedAuthority(roleEntity.authority) }.toSet()
+
+        val userDetails: UserDetails = User(user.username, user.password, authorities)
+
+        return userDetails
     }
 
     private fun createCode(): Long = floor(Math.random() * 100_000_000).toLong()

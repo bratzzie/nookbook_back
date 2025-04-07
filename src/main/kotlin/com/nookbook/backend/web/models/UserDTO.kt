@@ -12,8 +12,8 @@ class UserDTO(
     @JsonIgnore var password: String? = "",
     var islandName: String? = "",
     var nativeFruit: FruitEnum? = FruitEnum.UNDEFINED,
-    var islandId: String? = "",
-    var hemisphereEnum: HemisphereEnum? = HemisphereEnum.UNDEFINED,
+    var creatorId: String? = "",
+    var hemisphere: HemisphereEnum? = HemisphereEnum.UNDEFINED,
     var accountEnabled: Boolean? = false,
     var verificationCode: Long? = 0,
     var id: Long? = null

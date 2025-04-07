@@ -1,18 +1,26 @@
 package com.nookbook.backend.web.controllers
 
 import com.nookbook.backend.core.converters.UserDTOToUserEntityConverter
+import com.nookbook.backend.core.services.TokenService
 import com.nookbook.backend.core.services.UserService
 import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
+import com.nookbook.backend.web.models.AuthenticatedUserDTO
 import com.nookbook.backend.web.models.UserDTO
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin("*")
 class AuthenticationController(
     private val userService: UserService,
-    private val userConverter: UserDTOToUserEntityConverter
+    private val userConverter: UserDTOToUserEntityConverter,
+    private val tokenService: TokenService,
+    private val authManager: AuthenticationManager
 ) {
 
     @PostMapping("/reg")
@@ -38,7 +46,22 @@ class AuthenticationController(
         return userConverter.toUserDTO(userService.verifyEmail(username, code))
     }
 
-    @PutMapping("/update/password")
+    @PostMapping("/login")
+    fun login(@RequestBody body: LinkedHashMap<String, String>): AuthenticatedUserDTO {
+        val password = body["password"] ?: throw RequestBodyIsNotValidException("Password")
+        val username = body["username"] ?: throw RequestBodyIsNotValidException("Username")
+
+        try {
+            val auth = authManager.authenticate(UsernamePasswordAuthenticationToken(username, password))
+            val token = tokenService.generateToken(auth)
+            return AuthenticatedUserDTO(userConverter.toUserDTO(userService.getUserByUsername(username)), token)
+        } catch (ex: AuthenticationException) {
+            return AuthenticatedUserDTO()
+        }
+    }
+
+    // reg/password ?
+    @PutMapping("/password")
     fun updatePassword(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
         val password = body["password"] ?: throw RequestBodyIsNotValidException("Password")
         val username = body["username"] ?: throw RequestBodyIsNotValidException("Username")
