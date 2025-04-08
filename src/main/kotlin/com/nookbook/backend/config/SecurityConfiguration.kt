@@ -31,6 +31,7 @@ open class SecurityConfiguration(private val keys: RSAKeyProperties) {
         http.authorizeHttpRequests { authorize ->
             authorize
                 .requestMatchers("/auth/**").permitAll() // for all users on stage of authentication
+                .requestMatchers("/user/**").permitAll()
                 .anyRequest().authenticated() // everything else should be authenticated
         }
         http.oauth2ResourceServer { oauth2 -> oauth2.jwt(Customizer.withDefaults()) }

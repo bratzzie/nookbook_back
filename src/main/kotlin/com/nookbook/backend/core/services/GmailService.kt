@@ -3,8 +3,8 @@ package com.nookbook.backend.core.services
 import com.google.api.services.gmail.Gmail
 import com.nookbook.backend.core.services.exceptions.EmailFailedToSendException
 import org.apache.commons.codec.binary.Base64
-import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream
 import org.springframework.stereotype.Service
+import java.io.ByteArrayOutputStream
 import java.util.*
 import javax.mail.Message
 import javax.mail.Session
