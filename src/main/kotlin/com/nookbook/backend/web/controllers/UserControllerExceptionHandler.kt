@@ -1,6 +1,7 @@
 package com.nookbook.backend.web.controllers
 
 import com.nookbook.backend.core.services.exceptions.UserDoesNotExistException
+import com.nookbook.backend.core.services.exceptions.UserFriendException
 import com.nookbook.backend.core.services.exceptions.UserImageException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,4 +20,9 @@ class UserControllerExceptionHandler {
     @ExceptionHandler
     fun handleUserImageException(ex: UserImageException): ResponseEntity<String> =
         ResponseEntity<String>(ex.message, HttpStatus.NOT_ACCEPTABLE)
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler
+    fun handleUserFriendException(ex: UserFriendException): ResponseEntity<String> =
+        ResponseEntity<String>(ex.message, HttpStatus.FORBIDDEN)
 }

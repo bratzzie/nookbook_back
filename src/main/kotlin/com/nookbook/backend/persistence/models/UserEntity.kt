@@ -53,19 +53,11 @@ class UserEntity(
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-        name = "followings",
+        name = "friends",
         joinColumns = [JoinColumn(name = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "following_id")]
+        inverseJoinColumns = [JoinColumn(name = "target_user_id")]
     )
-    var followingUsers: MutableSet<UserEntity>,
-
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "followers",
-        joinColumns = [JoinColumn(name = "user_id")],
-        inverseJoinColumns = [JoinColumn(name = "follower_id")]
-    )
-    var followerUsers: MutableSet<UserEntity>
+    var friends: MutableSet<UserEntity>
 ) {
 
 }

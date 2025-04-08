@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.source.JWKSource
 import com.nimbusds.jose.proc.SecurityContext
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
@@ -31,6 +32,10 @@ open class SecurityConfiguration(private val keys: RSAKeyProperties) {
         http.authorizeHttpRequests { authorize ->
             authorize
                 .requestMatchers("/auth/**").permitAll() // for all users on stage of authentication
+                .requestMatchers(HttpMethod.GET, "/user/picture").permitAll()
+                .requestMatchers(HttpMethod.GET, "/user/friend/**").permitAll()
+                .requestMatchers(HttpMethod.PUT, "user/friend").authenticated()
+                .requestMatchers(HttpMethod.POST, "/user/picture/upload").authenticated()
                 .anyRequest().authenticated() // everything else should be authenticated
         }
         http.oauth2ResourceServer { oauth2 -> oauth2.jwt(Customizer.withDefaults()) }

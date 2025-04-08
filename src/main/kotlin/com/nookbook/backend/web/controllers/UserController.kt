@@ -4,6 +4,7 @@ import com.nookbook.backend.core.converters.UserDTOToUserEntityConverter
 import com.nookbook.backend.core.services.TokenService
 import com.nookbook.backend.core.services.UserImageService
 import com.nookbook.backend.core.services.UserService
+import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import com.nookbook.backend.web.models.UserDTO
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
@@ -54,4 +55,27 @@ class UserController(
         val username = tokenService.getUsernameFromToken(token)
         userImageService.uploadPicture(username, file)
     }
+
+    @PutMapping("/")
+    fun updateUser(@RequestBody userDTO: UserDTO): UserDTO {
+        return converter.toUserDTO(userService.updateUser(converter.toUserEntity(userDTO)))
+    }
+
+    // both users should call this method, in order to become "official" friends
+    @PutMapping("/friend")
+    fun befriendUser(
+        @RequestHeader(HttpHeaders.AUTHORIZATION) token: String,
+        @RequestBody body: LinkedHashMap<String, String>
+    ): List<UserDTO> {
+        val loggedInUser = tokenService.getUsernameFromToken(token)
+        val targetUser = body["targetUser"] ?: throw RequestBodyIsNotValidException("User to befriend")
+
+        return userService.befriendUser(loggedInUser, targetUser).map { converter.toUserDTO(it) }
+    }
+
+    @GetMapping("/friend/{username}")
+    fun getFriends(@PathVariable("username") username: String): List<UserDTO> {
+        return userService.getMutualFriends(username).map { converter.toUserDTO(it) }
+    }
+
 }

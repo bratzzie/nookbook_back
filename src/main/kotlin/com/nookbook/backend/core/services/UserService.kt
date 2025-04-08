@@ -1,9 +1,6 @@
 package com.nookbook.backend.core.services
 
-import com.nookbook.backend.core.services.exceptions.EmailAlreadyTakenException
-import com.nookbook.backend.core.services.exceptions.IncorrectVerificationCodeException
-import com.nookbook.backend.core.services.exceptions.UserDoesNotExistException
-import com.nookbook.backend.core.services.exceptions.UsernameAlreadyTakenException
+import com.nookbook.backend.core.services.exceptions.*
 import com.nookbook.backend.persistence.models.RoleEntity
 import com.nookbook.backend.persistence.models.UserEntity
 import com.nookbook.backend.persistence.repositories.RoleRepository
@@ -98,10 +95,49 @@ class UserService(
         return userDetails
     }
 
+
+    fun updateUser(userEntity: UserEntity): UserEntity {
+        return userRepository.save(userEntity)
+    }
+
+    fun befriendUser(currentUsername: String, targetUsername: String): Set<UserEntity> {
+        val currentUser = getUserByUsername(currentUsername)
+        val currentUserFriends = currentUser.friends
+
+        val targetUser = getUserByUsername(targetUsername)
+
+        if (currentUsername == targetUsername) {
+            throw UserFriendException("You cannot befriend yourself")
+        }
+
+        if (currentUserFriends.contains(targetUser)) {
+            throw UserFriendException("You already sent friend request to ${targetUser.name}")
+        }
+
+        currentUserFriends.add(targetUser)
+
+        userRepository.save(currentUser)
+
+        return currentUser.friends
+    }
+
+    fun getMutualFriends(username: String): Set<UserEntity> {
+        // TODO:
+        // return userRepository.findMutualFriendsByUsername(username)
+        val currentUser = getUserByUsername(username)
+        val currentUserFriends = currentUser.friends
+        val mutualFriends = mutableSetOf<UserEntity>()
+
+        for (friend in currentUserFriends) {
+            val potentialFriend = getUserByUsername(friend.username)
+            if (potentialFriend.friends.contains(currentUser)) {
+                mutualFriends.add(friend)
+            }
+        }
+
+        return mutualFriends
+    }
+
     private fun createCode(): Long = floor(Math.random() * 100_000_000).toLong()
 
-
-//    fun updateUser(user: UserEntity) {
-//
-//    }
 }

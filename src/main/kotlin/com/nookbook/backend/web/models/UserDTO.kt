@@ -11,9 +11,7 @@ class UserDTO(
     var username: String,
     var authorities: MutableSet<RoleDTO> = HashSet(),
     @JsonIgnore
-    var followingUsers: MutableSet<UserEntity> = HashSet(),
-    @JsonIgnore
-    var followerUsers: MutableSet<UserEntity> = HashSet(),
+    var friends: MutableSet<UserEntity> = HashSet(),
     @JsonIgnore var password: String? = "",
     var islandName: String? = "",
     var nativeFruit: FruitEnum? = FruitEnum.UNDEFINED,
