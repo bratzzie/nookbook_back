@@ -5,6 +5,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimsSet
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.JwtEncoder
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -22,7 +23,11 @@ class TokenService(private val jwtEncoder: JwtEncoder, private val jwtDecoder: J
     }
 
     fun getUsernameFromToken(token: String): String {
-        val decoded = jwtDecoder.decode(token)
+        if (token.substring(0, 6) != "Bearer")
+            throw InvalidBearerTokenException("Token is not a Bearer token")
+
+        val strippedToken = token.substring(7)
+        val decoded = jwtDecoder.decode(strippedToken)
         val username = decoded.subject
         return username
     }

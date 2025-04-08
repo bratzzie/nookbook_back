@@ -49,7 +49,23 @@ class UserEntity(
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "user_id")
-    var id: Long
+    var id: Long,
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "followings",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "following_id")]
+    )
+    var followingUsers: MutableSet<UserEntity>,
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "followers",
+        joinColumns = [JoinColumn(name = "user_id")],
+        inverseJoinColumns = [JoinColumn(name = "follower_id")]
+    )
+    var followerUsers: MutableSet<UserEntity>
 ) {
 
 }

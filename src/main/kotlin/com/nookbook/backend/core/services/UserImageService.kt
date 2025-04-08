@@ -57,7 +57,7 @@ class UserImageService(
         val credentials = GoogleCredentials.fromStream(
             this.javaClass.classLoader.getResource(CREDENTIALS_FILENAME)
                 ?.openStream()
-        );
+        )
 
         val storage = StorageOptions.newBuilder().setCredentials(credentials).setProjectId(projectId).build().service
         val blobId = BlobId.of(bucketName, objectName)

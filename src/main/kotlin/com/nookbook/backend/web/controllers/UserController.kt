@@ -22,25 +22,14 @@ class UserController(
     private val userImageService: UserImageService
 ) {
     @GetMapping("/verify")
-    fun getUser(@RequestHeader(HttpHeaders.AUTHORIZATION) token: String): UserDTO? {
-        var username = ""
-
-        if (token.substring(0, 6) == "Bearer") {
-            val strippedToken = token.substring(7)
-            username = tokenService.getUsernameFromToken(strippedToken)
-        }
-
-        val user: UserDTO? = try {
-            converter.toUserDTO(userService.getUserByUsername(username))
-        } catch (e: Exception) {
-            null
-        }
-
-        return user
+    fun getUser(@RequestHeader(HttpHeaders.AUTHORIZATION) token: String): UserDTO {
+        val username = tokenService.getUsernameFromToken(token)
+        return converter.toUserDTO(userService.getUserByUsername(username))
     }
 
     @GetMapping("/picture")
-    fun getProfilePicture(@RequestParam username: String): ResponseEntity<ByteArray> {
+    fun getProfilePicture(@RequestHeader(HttpHeaders.AUTHORIZATION) token: String): ResponseEntity<ByteArray> {
+        val username = tokenService.getUsernameFromToken(token)
         val file = userImageService.downloadPicture(username)
         val base64encodedData = userImageService.encodeFile(file)
 
@@ -52,13 +41,17 @@ class UserController(
                 )
                 .body(base64encodedData)
         } finally {
-            file.deleteRecursively();
+            file.deleteRecursively()
         }
 
     }
 
     @PostMapping("/picture/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun uploadFile(@RequestParam username: String, @RequestParam file: MultipartFile) {
+    fun uploadProfilePicture(
+        @RequestHeader(HttpHeaders.AUTHORIZATION) token: String,
+        @RequestParam file: MultipartFile
+    ) {
+        val username = tokenService.getUsernameFromToken(token)
         userImageService.uploadPicture(username, file)
     }
 }
