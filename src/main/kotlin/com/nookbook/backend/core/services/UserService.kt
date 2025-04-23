@@ -5,6 +5,7 @@ import com.nookbook.backend.persistence.models.RoleEntity
 import com.nookbook.backend.persistence.models.UserEntity
 import com.nookbook.backend.persistence.repositories.RoleRepository
 import com.nookbook.backend.persistence.repositories.UserRepository
+import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -12,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import java.util.*
 import kotlin.math.floor
 
 @Service
@@ -136,6 +138,19 @@ class UserService(
         }
 
         return mutualFriends
+    }
+
+    fun verifyCredentials(credentials: LinkedHashMap<String, String>): String {
+        val user: Optional<UserEntity> = when {
+            credentials.contains("username") -> userRepository.findByUsername(credentials.get("username")!!)
+            credentials.contains("email") -> userRepository.findByEmail(credentials.get("email")!!)
+            else -> throw RequestBodyIsNotValidException("Body does not contain either username or email information")
+        }
+
+        if (user.isPresent)
+            return user.get().username
+        else
+            throw UserDoesNotExistException()
     }
 
     private fun createCode(): Long = floor(Math.random() * 100_000_000).toLong()

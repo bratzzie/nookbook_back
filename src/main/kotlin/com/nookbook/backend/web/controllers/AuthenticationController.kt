@@ -6,7 +6,9 @@ import com.nookbook.backend.core.services.UserService
 import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import com.nookbook.backend.web.models.AuthenticatedUserDTO
 import com.nookbook.backend.web.models.UserDTO
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -60,13 +62,20 @@ class AuthenticationController(
         }
     }
 
-    // reg/password ?
-    @PutMapping("/password")
+    @PutMapping("/reg/password")
     fun updatePassword(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
         val password = body["password"] ?: throw RequestBodyIsNotValidException("Password")
         val username = body["username"] ?: throw RequestBodyIsNotValidException("Username")
 
         return userConverter.toUserDTO(userService.updatePassword(username, password))
 
+    }
+
+    @PostMapping("/login/find")
+    fun verifyCredentials(@RequestBody body: LinkedHashMap<String, String>): ResponseEntity<String> {
+        val httpHeaders: HttpHeaders = HttpHeaders()
+        httpHeaders.contentType = MediaType.TEXT_PLAIN
+        val username = userService.verifyCredentials(body)
+        return ResponseEntity<String>(username, HttpStatus.OK)
     }
 }
