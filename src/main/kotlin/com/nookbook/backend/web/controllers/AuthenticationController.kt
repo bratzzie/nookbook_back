@@ -3,6 +3,7 @@ package com.nookbook.backend.web.controllers
 import com.nookbook.backend.core.converters.UserDTOToUserEntityConverter
 import com.nookbook.backend.core.services.TokenService
 import com.nookbook.backend.core.services.UserService
+import com.nookbook.backend.web.controllers.exceptions.InvalidCredentialsException
 import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import com.nookbook.backend.web.models.AuthenticatedUserDTO
 import com.nookbook.backend.web.models.UserDTO
@@ -58,7 +59,7 @@ class AuthenticationController(
             val token = tokenService.generateToken(auth)
             return AuthenticatedUserDTO(userConverter.toUserDTO(userService.getUserByUsername(username)), token)
         } catch (ex: AuthenticationException) {
-            return AuthenticatedUserDTO()
+            throw InvalidCredentialsException()
         }
     }
 

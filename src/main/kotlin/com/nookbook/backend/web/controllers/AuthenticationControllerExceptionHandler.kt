@@ -4,6 +4,7 @@ import com.nookbook.backend.core.services.exceptions.EmailAlreadyTakenException
 import com.nookbook.backend.core.services.exceptions.EmailFailedToSendException
 import com.nookbook.backend.core.services.exceptions.IncorrectVerificationCodeException
 import com.nookbook.backend.core.services.exceptions.UsernameAlreadyTakenException
+import com.nookbook.backend.web.controllers.exceptions.InvalidCredentialsException
 import com.nookbook.backend.web.controllers.exceptions.RequestBodyIsNotValidException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -44,5 +45,10 @@ class AuthenticationControllerExceptionHandler {
     @ExceptionHandler
     fun handleIncorrectVerificationCodeException(ex: IncorrectVerificationCodeException): ResponseEntity<String> =
         ResponseEntity<String>("The provided verification code is incorrect", HttpStatus.CONFLICT)
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler
+    fun handleInvalidCredentialsException(ex: InvalidCredentialsException): ResponseEntity<String> =
+        ResponseEntity<String>("Invalid login data", HttpStatus.FORBIDDEN)
 }
 
