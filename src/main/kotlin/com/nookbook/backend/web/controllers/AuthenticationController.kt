@@ -41,12 +41,30 @@ class AuthenticationController(
         throw RequestBodyIsNotValidException("Username")
     }
 
+    @PostMapping("/forgot/code")
+    fun createForgotPasswordCode(@RequestBody body: LinkedHashMap<String, String>): ResponseEntity<String> {
+        body["email"]?.let {
+            userService.createForgotPasswordCode(it)
+            return ResponseEntity<String>("Password code generated, email was sent", HttpStatus.OK)
+        }
+
+        throw RequestBodyIsNotValidException("Email")
+    }
+
     @PostMapping("/email/verify")
     fun verifyEmail(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
         val code = body["code"]?.toLong() ?: throw RequestBodyIsNotValidException("Verification code")
         val username = body["username"] ?: throw RequestBodyIsNotValidException("Username")
 
         return userConverter.toUserDTO(userService.verifyEmail(username, code))
+    }
+
+    @PostMapping("/forgot/verify")
+    fun verifyForgotPasswordCode(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
+        val code = body["code"]?.toLong() ?: throw RequestBodyIsNotValidException("Confirmation code")
+        val email = body["email"] ?: throw RequestBodyIsNotValidException("Email")
+
+        return userConverter.toUserDTO(userService.verifyForgotPasswordCode(email, code))
     }
 
     @PostMapping("/login")
@@ -78,5 +96,21 @@ class AuthenticationController(
         httpHeaders.contentType = MediaType.TEXT_PLAIN
         val username = userService.verifyCredentials(body)
         return ResponseEntity<String>(username, HttpStatus.OK)
+    }
+
+    @GetMapping("/forgot/credentials")
+    fun getUserEmail(@RequestParam username: String, @RequestParam email: String): ResponseEntity<String> {
+
+        val user = username.takeIf { it.isNotBlank() }?.let {
+            userService.getUserByUsername(it)
+        } ?: email.takeIf { it.isNotBlank() }?.let {
+            userService.getUserByEmail(it)
+        }
+
+        user?.let {
+            return ResponseEntity<String>(user.email, HttpStatus.OK)
+        }
+
+        throw RequestBodyIsNotValidException("Credentials")
     }
 }

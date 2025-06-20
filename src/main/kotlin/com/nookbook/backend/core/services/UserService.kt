@@ -54,6 +54,20 @@ class UserService(
         userRepository.save(user)
     }
 
+    fun createForgotPasswordCode(email: String) {
+        val user = getUserByEmail(email)
+
+        user.verificationCode = createCode()
+
+        gmailService.sendEmail(
+            user.email,
+            "Reset password code for Nookbook",
+            "Check your code: ${user.verificationCode}"
+        )
+
+        userRepository.save(user)
+    }
+
     fun verifyEmail(username: String, code: Long): UserEntity {
 
         val user = getUserByUsername(username)
@@ -66,6 +80,16 @@ class UserService(
             throw IncorrectVerificationCodeException()
 
     }
+
+    fun verifyForgotPasswordCode(email: String, code: Long): UserEntity {
+        val user = getUserByEmail(email)
+
+        if (code == user.verificationCode) {
+            user.verificationCode = null
+            return userRepository.save(user)
+        } else throw IncorrectVerificationCodeException()
+    }
+
 
     fun updatePassword(username: String, password: String): UserEntity {
         val user = getUserByUsername(username)
@@ -96,7 +120,6 @@ class UserService(
 
         return userDetails
     }
-
 
     fun updateUser(userEntity: UserEntity): UserEntity {
         return userRepository.save(userEntity)
@@ -152,6 +175,16 @@ class UserService(
         else
             throw UserDoesNotExistException()
     }
+
+    fun getUserByEmail(email: String): UserEntity {
+        val user = userRepository.findByEmail(email)
+
+        if (user.isPresent)
+            return user.get()
+        else
+            throw UserDoesNotExistException()
+    }
+
 
     private fun createCode(): Long = floor(Math.random() * 100_000_000).toLong()
 
