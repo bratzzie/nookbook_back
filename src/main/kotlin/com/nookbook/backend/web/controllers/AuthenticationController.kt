@@ -82,12 +82,20 @@ class AuthenticationController(
     }
 
     @PutMapping("/reg/password")
-    fun updatePassword(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
+    fun updatePasswordByUsername(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
         val password = body["password"] ?: throw RequestBodyIsNotValidException("Password")
         val username = body["username"] ?: throw RequestBodyIsNotValidException("Username")
 
         return userConverter.toUserDTO(userService.updatePassword(username, password))
 
+    }
+
+    @PutMapping("/forgot/password")
+    fun updatePasswordByEmail(@RequestBody body: LinkedHashMap<String, String>): UserDTO {
+        val password = body["password"] ?: throw RequestBodyIsNotValidException("Password")
+        val email = body["email"] ?: throw RequestBodyIsNotValidException("Email")
+
+        return userConverter.toUserDTO(userService.updatePassword(userService.getUserByEmail(email).username, password))
     }
 
     @PostMapping("/login/find")
